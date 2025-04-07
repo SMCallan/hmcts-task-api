@@ -10,6 +10,18 @@ This API is designed to be consumed by a separate frontend application (`hmcts-t
 
 HMCTS requires a new system to help caseworkers track their tasks efficiently. This API serves as the backbone for that system, managing task data persistently.
 
+## Live Application Links
+
+*   **Live Frontend Demo:** **[https://fluffy-paprenjak-e29c80.netlify.app](https://fluffy-paprenjak-e29c80.netlify.app)**
+*   **Live API Base URL:** **[https://hmcts-task-api-production.up.railway.app](https://hmcts-task-api-production.up.railway.app)**
+    *   *(e.g., Health Check: `GET /health`, Task Endpoint: `GET /api/tasks`)*
+
+## Frontend Repository
+
+The corresponding frontend UI for this project can be found here:
+
+*   **Frontend UI:** **[https://github.com/SMCallan/hmcts-task-ui](https://github.com/SMCallan/hmcts-task-ui)**
+
 ## Features Implemented
 
 *   **Create Task:** Add a new task with title, description (optional), status, and due date.
@@ -19,7 +31,7 @@ HMCTS requires a new system to help caseworkers track their tasks efficiently. T
 *   **Delete Task:** Remove a task from the system.
 *   **Database Persistence:** Tasks are stored in a PostgreSQL database.
 *   **Validation & Error Handling:** Basic validation for inputs and consistent error responses.
-*   **API Testing:** Integration tests cover core API endpoint functionality.
+*   **API Testing:** Integration tests cover core API endpoint functionality using Jest & Supertest.
 
 ## Tech Stack
 
@@ -29,7 +41,7 @@ HMCTS requires a new system to help caseworkers track their tasks efficiently. T
 *   **ORM:** Prisma
 *   **Testing:** Jest, Supertest
 *   **Middleware:** CORS (for cross-origin requests), `express.json` (for body parsing)
-*   **Environment Variables:** `dotenv`
+*   **Environment Variables:** `dotenv` (for local development)
 
 ## Prerequisites
 
@@ -37,20 +49,13 @@ Before running this project locally, ensure you have the following installed:
 
 *   [Node.js](https://nodejs.org/) (LTS version recommended, includes npm)
 *   [Git](https://git-scm.com/)
-*   A running PostgreSQL database instance. You can:
-    *   Install PostgreSQL locally.
-    *   Use a Docker container for PostgreSQL.
-    *   Use a free cloud provider like [Railway](https://railway.app/), [ElephantSQL](https://www.elephantsql.com/), or [Render](https://render.com/).
+*   A running PostgreSQL database instance (local, Docker, or cloud provider like Railway/ElephantSQL).
 
 ## Getting Started
 
 1.  **Clone the repository:**
     ```bash
-<<<<<<< HEAD
-    git clone [https://github.com/SMCallan/hmcts-task-api] # e.g., git clone https://github.com/your-username/hmcts-task-api.git
-=======
     git clone https://github.com/SMCallan/hmcts-task-api.git
->>>>>>> 4a221ede3e4f8c75f35918a2db73cdd06e9872e2
     cd hmcts-task-api
     ```
 
@@ -60,49 +65,42 @@ Before running this project locally, ensure you have the following installed:
     ```
 
 3.  **Set up the Database Connection:**
-    *   Obtain the connection URL (connection string) for your PostgreSQL database instance. It typically looks like: `postgresql://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
-    *   Create a `.env` file in the root of the project directory. You can copy the example file:
-        ```bash
-        cp .env.example .env
-        ```
-        *(Note: If `.env.example` doesn't exist, create `.env` manually)*
-    *   Open the `.env` file and **replace the placeholder** value for `DATABASE_URL` with your actual database connection URL:
+    *   Obtain the connection URL for your PostgreSQL database.
+    *   Create a `.env` file in the root directory (or copy `.env.example` if it exists: `cp .env.example .env`).
+    *   Edit `.env` and set the `DATABASE_URL`:
         ```dotenv
         # .env file
         DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE_NAME"
-
-        # Optional: Define a specific port if needed, otherwise defaults to 3001
-        # PORT=3001
+        # PORT=3001 # Optional: Specify local port if needed
         ```
-    *   **Important:** Ensure the `.env` file is listed in your `.gitignore` file to prevent committing sensitive credentials.
+    *   Ensure `.env` is in `.gitignore`.
 
 4.  **Run Database Migrations:**
-    *   Prisma uses migrations to create and update your database schema based on the definition in `prisma/schema.prisma`. Run the following command to apply migrations:
+    *   Apply migrations to set up the `Task` table in your database:
         ```bash
         npx prisma migrate dev
         ```
-    *   This will create the necessary `Task` table in your database.
 
 ## Running the Application (Development Mode)
 
-*   To start the server with automatic restarts on file changes (using Nodemon):
+*   Start the server with Nodemon for auto-restarts:
     ```bash
     npm run dev
     ```
-*   The API will typically be running at `http://localhost:3001` (or the port specified in your `.env` file).
-*   You can check if the server is running by accessing the health check endpoint in your browser or using a tool like Insomnia/Postman: `GET http://localhost:3001/health` (should return `{"status":"UP"}`).
+*   The API will typically run at `http://localhost:3001`.
+*   Test the health check: `GET http://localhost:3001/health`.
 
 ## Running Tests
 
-*   To run the API integration tests (using Jest and Supertest):
+*   Run integration tests (ensure server is stopped first):
     ```bash
     npm test
     ```
-*   Tests will interact with the database specified in your `.env` file. The tests include cleanup steps (`beforeAll`, `afterAll`) to delete test data.
+*   Tests use the `DATABASE_URL` from your `.env` file and include cleanup steps.
 
 ## API Documentation
 
-Base URL: `/api/tasks`
+Base Path: `/api/tasks` (relative to the server's base URL)
 
 ---
 
@@ -122,23 +120,10 @@ Base URL: `/api/tasks`
     ```
 *   **Success Response:**
     *   **Code:** `201 Created`
-    *   **Body:** JSON object representing the newly created task (including `id`, `createdAt`, `updatedAt`).
-        ```json
-        {
-          "id": 1,
-          "title": "Example Task",
-          "description": "Details here",
-          "status": "To Do",
-          "dueDate": "2024-12-01T10:00:00.000Z",
-          "createdAt": "2024-04-07T14:00:00.123Z",
-          "updatedAt": "2024-04-07T14:00:00.123Z"
-        }
-        ```
+    *   **Body:** JSON object of the created task.
 *   **Error Responses:**
-    *   `400 Bad Request`: Missing required fields or invalid `dueDate` format.
-        *   Body: `{"error": "Missing required fields..."}` or `{"error": "Invalid date format..."}`
-    *   `500 Internal Server Error`: Database error during creation.
-        *   Body: `{"error": "Failed to create task."}`
+    *   `400 Bad Request`: Missing fields or invalid date format.
+    *   `500 Internal Server Error`: Database error.
 
 ---
 
@@ -146,20 +131,12 @@ Base URL: `/api/tasks`
 
 *   **Endpoint:** `/`
 *   **Method:** `GET`
-*   **Description:** Retrieves a list of all tasks, sorted by creation date (newest first).
-*   **Request Body:** None
+*   **Description:** Retrieves all tasks (newest first).
 *   **Success Response:**
     *   **Code:** `200 OK`
-    *   **Body:** JSON array of task objects. Empty array `[]` if no tasks exist.
-        ```json
-        [
-          { "id": 2, "title": "Task Two", ... },
-          { "id": 1, "title": "Task One", ... }
-        ]
-        ```
+    *   **Body:** JSON array of task objects (`[]` if none).
 *   **Error Responses:**
-    *   `500 Internal Server Error`: Database error during retrieval.
-        *   Body: `{"error": "Failed to retrieve tasks."}`
+    *   `500 Internal Server Error`: Database error.
 
 ---
 
@@ -167,23 +144,15 @@ Base URL: `/api/tasks`
 
 *   **Endpoint:** `/:id`
 *   **Method:** `GET`
-*   **Description:** Retrieves a single task by its unique ID.
-*   **URL Parameters:**
-    *   `id` (integer, required): The ID of the task to retrieve.
-*   **Request Body:** None
+*   **Description:** Retrieves a single task by ID.
+*   **URL Parameters:** `id` (integer, required).
 *   **Success Response:**
     *   **Code:** `200 OK`
-    *   **Body:** JSON object representing the requested task.
-        ```json
-        { "id": 1, "title": "Task One", ... }
-        ```
+    *   **Body:** JSON object of the requested task.
 *   **Error Responses:**
-    *   `400 Bad Request`: Invalid ID format (not an integer).
-        *   Body: `{"error": "Invalid task ID provided."}`
-    *   `404 Not Found`: No task exists with the specified ID.
-        *   Body: `{"error": "Task not found."}`
+    *   `400 Bad Request`: Invalid ID format.
+    *   `404 Not Found`: Task with ID not found.
     *   `500 Internal Server Error`: Database error.
-        *   Body: `{"error": "Failed to retrieve task."}`
 
 ---
 
@@ -192,27 +161,18 @@ Base URL: `/api/tasks`
 *   **Endpoint:** `/:id/status`
 *   **Method:** `PATCH`
 *   **Description:** Updates the status of a specific task.
-*   **URL Parameters:**
-    *   `id` (integer, required): The ID of the task to update.
+*   **URL Parameters:** `id` (integer, required).
 *   **Request Body:** JSON object
     ```json
-    {
-      "status": "string (required)" // e.g., "In Progress", "Done"
-    }
+    { "status": "string (required)" }
     ```
 *   **Success Response:**
     *   **Code:** `200 OK`
-    *   **Body:** JSON object representing the *updated* task (with new status and `updatedAt`).
-        ```json
-        { "id": 1, "title": "Task One", "status": "Done", ... "updatedAt": "2024-04-07T14:05:00.456Z" }
-        ```
+    *   **Body:** JSON object of the updated task.
 *   **Error Responses:**
-    *   `400 Bad Request`: `status` field missing in request body or invalid ID format.
-        *   Body: `{"error": "Missing required field: status is required."}` or `{"error": "Invalid task ID provided."}`
-    *   `404 Not Found`: No task exists with the specified ID.
-        *   Body: `{"error": "Task not found."}`
-    *   `500 Internal Server Error`: Database error during update.
-        *   Body: `{"error": "Failed to update task status."}`
+    *   `400 Bad Request`: Missing status or invalid ID format.
+    *   `404 Not Found`: Task with ID not found.
+    *   `500 Internal Server Error`: Database error.
 
 ---
 
@@ -220,59 +180,48 @@ Base URL: `/api/tasks`
 
 *   **Endpoint:** `/:id`
 *   **Method:** `DELETE`
-*   **Description:** Deletes a specific task by its ID.
-*   **URL Parameters:**
-    *   `id` (integer, required): The ID of the task to delete.
-*   **Request Body:** None
+*   **Description:** Deletes a specific task by ID.
+*   **URL Parameters:** `id` (integer, required).
 *   **Success Response:**
     *   **Code:** `204 No Content`
     *   **Body:** None
 *   **Error Responses:**
-    *   `400 Bad Request`: Invalid ID format (not an integer).
-        *   Body: `{"error": "Invalid task ID provided."}`
-    *   `404 Not Found`: No task exists with the specified ID.
-        *   Body: `{"error": "Task not found."}`
-    *   `500 Internal Server Error`: Database error during deletion.
-        *   Body: `{"error": "Failed to delete task."}`
+    *   `400 Bad Request`: Invalid ID format.
+    *   `404 Not Found`: Task with ID not found.
+    *   `500 Internal Server Error`: Database error.
 
 ---
 
 ## Deployment
 
-This API needs to be deployed to a hosting service (like Railway, Render, Fly.io, Heroku, AWS, etc.) so the frontend application can access it via a public URL.
+This API is deployed on **Railway**.
 
-When deploying, ensure the following environment variables are set on the hosting platform:
-
-*   `DATABASE_URL`: The connection string for your *production* PostgreSQL database.
-*   `PORT` (Optional): The port the hosting service expects your application to listen on (many platforms set this automatically).
-*   `NODE_ENV`: Should typically be set to `production`.
-
-**Live API Base URL:** [Link to deployed API Base URL - e.g., https://your-api-deployment.onrender.com] *(You will add this link once deployed)*
+*   Deployment is triggered automatically via pushes to the `main` branch on GitHub.
+*   Required environment variables (`DATABASE_URL`, `NODE_ENV=production`) are configured in the Railway service settings.
+*   Database migrations (`npx prisma migrate deploy`) must be run against the production database (initially done via a temporary modification to the `npm start` script, now reverted).
 
 ## Project Structure
 ```
 hmcts-task-api/
-├── __tests__/             # API integration tests
-│   └── tasks.test.js
-├── prisma/                # Prisma configuration and migrations
-│   ├── migrations/        # Database migration history
-│   └── schema.prisma      # Prisma schema definition (Task model)
-├── src/                   # Source code
-│   ├── controllers/       # Request handling logic for routes
-│   │   └── taskController.js
-│   ├── routes/            # API route definitions
-│   │   └── taskRoutes.js
-│   ├── db.js              # Prisma client initialization
-│   └── server.js          # Express server setup and startup
-├── .env                   # Environment variables (SECRET, ignored by Git)
-├── .env.example           # Example environment variables (safe to commit)
-├── .gitignore             # Files/folders ignored by Git
-├── package.json           # Project dependencies and scripts
-├── package-lock.json      # Lockfile for dependencies
-└── README.md              # This file
+├── tests/ # API integration tests
+│ └── tasks.test.js
+├── prisma/ # Prisma configuration and migrations
+│ ├── migrations/ # Database migration history
+│ └── schema.prisma # Prisma schema definition (Task model)
+├── src/ # Source code
+│ ├── controllers/ # Request handling logic for routes
+│ │ └── taskController.js
+│ ├── routes/ # API route definitions
+│ │ └── taskRoutes.js
+│ ├── db.js # Prisma client initialization
+│ └── server.js # Express server setup and startup
+├── .env # Local environment variables (SECRET, ignored by Git)
+├── .env.example # Example environment variables (safe to commit)
+├── .gitignore # Files/folders ignored by Git
+├── package.json # Project dependencies and scripts
+├── package-lock.json # Lockfile for dependencies
+└── README.md # This file
 ```
-
-
 ## Potential Future Improvements
 
 *   User Authentication & Authorization (e.g., JWT)
