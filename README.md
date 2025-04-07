@@ -46,7 +46,7 @@ Before running this project locally, ensure you have the following installed:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [Your Repository URL Here] # e.g., git clone https://github.com/your-username/hmcts-task-api.git
+    git clone [(https://github.com/SMCallan/hmcts-task-api)] # e.g., git clone https://github.com/your-username/hmcts-task-api.git
     cd hmcts-task-api
     ```
 
