@@ -46,7 +46,7 @@ Before running this project locally, ensure you have the following installed:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [Your Repository URL Here] # e.g., git clone https://github.com/your-username/hmcts-task-api.git
+    git clone [https://github.com/SMCallan/hmcts-task-api] # e.g., git clone https://github.com/your-username/hmcts-task-api.git
     cd hmcts-task-api
     ```
 
@@ -246,25 +246,27 @@ When deploying, ensure the following environment variables are set on the hostin
 **Live API Base URL:** [Link to deployed API Base URL - e.g., https://your-api-deployment.onrender.com] *(You will add this link once deployed)*
 
 ## Project Structure
+```
 hmcts-task-api/
-├── tests/ # API integration tests
-│ └── tasks.test.js
-├── prisma/ # Prisma configuration and migrations
-│ ├── migrations/ # Database migration history
-│ └── schema.prisma # Prisma schema definition (Task model)
-├── src/ # Source code
-│ ├── controllers/ # Request handling logic for routes
-│ │ └── taskController.js
-│ ├── routes/ # API route definitions
-│ │ └── taskRoutes.js
-│ ├── db.js # Prisma client initialization
-│ └── server.js # Express server setup and startup
-├── .env # Environment variables (ignored by Git)
-├── .env.example # Example environment variables
-├── .gitignore # Files/folders ignored by Git
-├── package.json # Project dependencies and scripts
-├── package-lock.json # Lockfile for dependencies
-└── README.md # This file
+├── __tests__/             # API integration tests
+│   └── tasks.test.js
+├── prisma/                # Prisma configuration and migrations
+│   ├── migrations/        # Database migration history
+│   └── schema.prisma      # Prisma schema definition (Task model)
+├── src/                   # Source code
+│   ├── controllers/       # Request handling logic for routes
+│   │   └── taskController.js
+│   ├── routes/            # API route definitions
+│   │   └── taskRoutes.js
+│   ├── db.js              # Prisma client initialization
+│   └── server.js          # Express server setup and startup
+├── .env                   # Environment variables (SECRET, ignored by Git)
+├── .env.example           # Example environment variables (safe to commit)
+├── .gitignore             # Files/folders ignored by Git
+├── package.json           # Project dependencies and scripts
+├── package-lock.json      # Lockfile for dependencies
+└── README.md              # This file
+```
 
 
 ## Potential Future Improvements
