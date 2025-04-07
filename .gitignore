@@ -134,3 +134,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Environment variables
+.env
+
+# Node modules
+node_modules
+
+# Prisma migrations (optional but can be large)
+# prisma/migrations/

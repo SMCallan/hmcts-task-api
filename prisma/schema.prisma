@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Defines how the Prisma Client is generated
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Defines the database connection (reads URL from .env)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// --- Define the Task Model ---
+// This block defines the structure of the 'Task' table in your database
+model Task {
+  id          Int      @id @default(autoincrement()) // Primary Key: Integer, unique ID, database handles generating it
+  title       String   // Required text field for the task's name
+  description String?  // Optional text field (the '?' means it can be empty/NULL)
+  status      String   // Required text field for the current status (e.g., 'To Do', 'In Progress')
+  dueDate     DateTime // Required field for the due date and time (maps to TIMESTAMP in Postgres)
+
+  // Timestamps managed automatically by Prisma/database
+  createdAt DateTime @default(now()) // Automatically set to the time the task is created
+  updatedAt DateTime @updatedAt // Automatically updated whenever the task is changed
+}
