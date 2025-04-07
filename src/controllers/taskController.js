@@ -1,5 +1,5 @@
 // src/controllers/taskController.js
-const prisma = require('../db'); // Import Prisma Client instance (ONCE at the top)
+const prisma = require('../db'); // Import Prisma Client instance
 
 // --- Create Task ---
 const createTask = async (req, res) => {
@@ -34,6 +34,9 @@ const createTask = async (req, res) => {
 
 // --- Get All Tasks ---
 const getAllTasks = async (req, res) => {
+  // --- Add log to check variable at runtime ---
+  console.log('>>> DATABASE_URL in getAllTasks:', process.env.DATABASE_URL ? 'Found' : 'NOT FOUND!');
+  // --- End log ---
   try {
     const tasks = await prisma.task.findMany({
        orderBy: {
@@ -42,91 +45,63 @@ const getAllTasks = async (req, res) => {
     });
     res.status(200).json(tasks);
   } catch (error) {
+    // Log the detailed error on the backend for debugging
     console.error("Error retrieving tasks:", error);
+    // Send a generic error response to the client
     res.status(500).json({ error: 'Failed to retrieve tasks.' });
   }
 };
 
 // --- Get Task By ID ---
 const getTaskById = async (req, res) => {
-  console.log("--- getTaskById Controller START ---"); // <-- Debug log
   const { id } = req.params;
-  console.log("Received ID parameter:", id); // <-- Debug log
-
   const taskId = parseInt(id, 10);
-  console.log("Parsed task ID:", taskId); // <-- Debug log
 
   if (isNaN(taskId)) {
-      console.log("Validation failed: Invalid task ID."); // <-- Debug log
       return res.status(400).json({ error: 'Invalid task ID provided.' });
   }
 
   try {
-    console.log(`Attempting to find task with ID: ${taskId}`); // <-- Debug log
     const task = await prisma.task.findUnique({
       where: {
         id: taskId,
       },
     });
-    // *** THE TIMEOUT MIGHT BE HAPPENING DURING THE ABOVE `await` CALL ***
-    console.log("Prisma findUnique result:", task); // <-- Debug log
 
     if (!task) {
-      console.log(`Task with ID ${taskId} not found.`); // <-- Debug log
       return res.status(404).json({ error: 'Task not found.' });
     }
-
-    console.log(`Task found, sending response for ID: ${taskId}`); // <-- Debug log
     res.status(200).json(task);
 
   } catch (error) {
-    // This catch block might be hit if prisma.$connect fails or times out internally
-    console.error(`!!! Error in getTaskById for ID ${taskId}:`, error); // <-- Enhanced log
+    console.error(`!!! Error in getTaskById for ID ${taskId}:`, error);
     res.status(500).json({ error: 'Failed to retrieve task.' });
   }
-  console.log("--- getTaskById Controller END ---"); // <-- Debug log
 };
 
 
-// --- Update Task Status (Placeholder) ---
+// --- Update Task Status ---
 const updateTaskStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body; // Expecting status in the request body
-
-  console.log(`--- updateTaskStatus Controller START for ID: ${id}, Status: ${status} ---`); // Debug log
+  const { status } = req.body;
 
   const taskId = parseInt(id, 10);
   if (isNaN(taskId)) {
       return res.status(400).json({ error: 'Invalid task ID provided.' });
   }
-
-  // Validation: Check if status is provided
   if (!status) {
        return res.status(400).json({ error: 'Missing required field: status is required.' });
   }
 
-  // Optional: Add validation for allowed status values (e.g., 'To Do', 'In Progress', 'Done')
-  // const allowedStatuses = ['To Do', 'In Progress', 'Done'];
-  // if (!allowedStatuses.includes(status)) {
-  //    return res.status(400).json({ error: `Invalid status value. Allowed values are: ${allowedStatuses.join(', ')}` });
-  // }
-
-
   try {
-    console.log(`Attempting to update status for task ID: ${taskId} to "${status}"`); // Debug log
-
-    // Use prisma.task.update to change the status
     const updatedTask = await prisma.task.update({
         where: { id: taskId },
-        data: { status: status }, // Only update the status field
+        data: { status: status },
     });
-
-    console.log("Prisma update result:", updatedTask); // Debug log
-    res.status(200).json(updatedTask); // Send back the updated task
+    res.status(200).json(updatedTask);
 
   } catch (error) {
-     // Handle errors, including the case where the task doesn't exist (P2025 error code)
-     if (error.code === 'P2025') { // Prisma error code for record not found during update/delete
+     if (error.code === 'P2025') {
         console.log(`Update failed: Task with ID ${taskId} not found.`);
         return res.status(404).json({ error: 'Task not found.' });
      } else {
@@ -134,34 +109,26 @@ const updateTaskStatus = async (req, res) => {
         res.status(500).json({ error: 'Failed to update task status.' });
      }
   }
-   console.log("--- updateTaskStatus Controller END ---"); // Debug log
 };
 
 
-// --- Delete Task (Placeholder) ---
+// --- Delete Task ---
 const deleteTask = async (req, res) => {
   const { id } = req.params;
-  console.log(`--- deleteTask Controller START for ID: ${id} ---`); // Debug log
-
   const taskId = parseInt(id, 10);
+
   if (isNaN(taskId)) {
     return res.status(400).json({ error: 'Invalid task ID provided.' });
   }
 
   try {
-    console.log(`Attempting to delete task with ID: ${taskId}`); // Debug log
-
-    // Use prisma.task.delete - this will error if the task doesn't exist
     await prisma.task.delete({
       where: { id: taskId },
     });
-
-    console.log(`Successfully deleted task with ID: ${taskId}`); // Debug log
-    res.status(204).send(); // Send No Content response on successful deletion
+    res.status(204).send();
 
   } catch (error) {
-     // Handle errors, including the case where the task doesn't exist (P2025 error code)
-     if (error.code === 'P2025') { // Prisma error code for record not found during update/delete
+     if (error.code === 'P2025') {
         console.log(`Delete failed: Task with ID ${taskId} not found.`);
         return res.status(404).json({ error: 'Task not found.' });
      } else {
@@ -169,7 +136,6 @@ const deleteTask = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete task.' });
      }
   }
-  console.log("--- deleteTask Controller END ---"); // Debug log
 };
 
 
@@ -178,6 +144,6 @@ module.exports = {
   createTask,
   getAllTasks,
   getTaskById,
-  updateTaskStatus, // Added placeholder
-  deleteTask,       // Added placeholder
+  updateTaskStatus,
+  deleteTask,
 };
